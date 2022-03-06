@@ -1,0 +1,83 @@
+// This #include statement was automatically added by the Particle IDE.
+#include <ThingSpeak.h>
+
+// This #include statement was automatically added by the Particle IDE.
+#include <Adafruit_DHT.h>
+
+
+
+
+
+#define DHTPIN 4   
+#define DHTTYPE DHT11	
+
+
+
+DHT dht(DHTPIN, DHTTYPE);
+
+TCPClient client;
+
+
+unsigned long myChannelNumber = 1666316;
+const char * myWriteAPIKey = "TKG8T6BOBPFJLMA9";
+
+void setup() {
+    
+  ThingSpeak.begin(client);
+	Serial.begin(9600); 
+	Serial.println("Starting...");
+	dht.begin();
+	
+}
+
+void loop() {
+
+	delay(2000);
+
+
+	float h = dht.getHumidity();    
+	float t = dht.getTempCelcius();
+	float f = dht.getTempFarenheit();
+  
+
+	if (isnan(h) || isnan(t) || isnan(f)) {
+		Serial.println("Failed to read from DHT sensor!");
+		return;
+	}
+	
+	ThingSpeak.setField(1,h);
+  ThingSpeak.setField(2,t);
+	
+	ThingSpeak.writeFields(myChannelNumber, myWriteAPIKey);
+	delay(30000);
+
+   
+    Serial.print(dht.getHumidity());
+    Serial.println("h");
+    Serial.print(dht.getTempCelcius());
+    Serial.println("t");
+
+
+
+	float hi = dht.getHeatIndex();
+	float dp = dht.getDewPoint();
+	float k = dht.getTempKelvin();
+
+	Serial.print("Humid: "); 
+	Serial.print(h);
+	Serial.print("% - ");
+	Serial.print("Temp: "); 
+	Serial.print(t);
+	Serial.print("*C ");
+	Serial.print(f);
+	Serial.print("*F ");
+	Serial.print(k);
+	Serial.print("*K - ");
+	Serial.print("DewP: ");
+	Serial.print(dp);
+	Serial.print("*C - ");
+	Serial.print("HeatI: ");
+	Serial.print(hi);
+	Serial.println("*C");
+	Serial.println(Time.timeStr());
+}
